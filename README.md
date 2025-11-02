@@ -1,5 +1,8 @@
 ## hamqtt
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/nathan-osman/hamqtt.svg)](https://pkg.go.dev/github.com/nathan-osman/hamqtt)
+[![MIT License](https://img.shields.io/badge/license-MIT-9370d8.svg?style=flat)](https://opensource.org/licenses/MIT)
+
 This package aims to provide an easy interface for exposing entities to [Home Assistant](https://www.home-assistant.io/) via [MQTT](https://mqtt.org/).
 
 ### Installation
