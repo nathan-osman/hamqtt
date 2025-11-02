@@ -1,9 +1,6 @@
 package hamqtt
 
 import (
-	"encoding/json"
-	"fmt"
-
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -30,53 +27,27 @@ type LightConfig struct {
 	OffCallback BoolCallback
 }
 
-func (c *Conn) lightPublishState(topic string, state bool) error {
-	payload := "OFF"
-	if state {
-		payload = "ON"
-	}
-	if t := c.client.Publish(topic, 0, true, payload); t.Wait() && t.Error() != nil {
-		return t.Error()
-	}
-	return nil
-}
-
 // Light creates a new light entity with the provided configuration.
 func (c *Conn) Light(cfg *LightConfig) error {
 	var (
-		cfgTopic = fmt.Sprintf(
-			"%s/light/%s/config",
-			c.discoveryPrefix,
-			cfg.ID,
-		)
-		cmdTopic = fmt.Sprintf(
-			"%s/%s/switch",
-			c.id,
-			cfg.ID,
-		)
-		stateTopic = fmt.Sprintf(
-			"%s/%s/state",
-			c.id,
-			cfg.ID,
-		)
-		payload = map[string]any{
+		cmdTopic   = c.cmdTopic(cfg.ID)
+		stateTopic = c.stateTopic(cfg.ID)
+	)
+	if err := c.publishState(stateTopic, cfg.State); err != nil {
+		return err
+	}
+	if err := c.publishCfg(
+		c.cfgTopic(cfg.ID, "light"),
+		map[string]any{
 			"device":        c.device,
 			"platform":      "light",
 			"unique_id":     cfg.ID,
 			"name":          cfg.Name,
 			"command_topic": cmdTopic,
 			"state_topic":   stateTopic,
-		}
-	)
-	b, err := json.Marshal(payload)
-	if err != nil {
+		},
+	); err != nil {
 		return err
-	}
-	if err := c.lightPublishState(stateTopic, cfg.State); err != nil {
-		return err
-	}
-	if t := c.client.Publish(cfgTopic, 0, true, b); t.Wait() && t.Error() != nil {
-		return t.Error()
 	}
 	if t := c.client.Subscribe(
 		cmdTopic,
@@ -85,11 +56,11 @@ func (c *Conn) Light(cfg *LightConfig) error {
 			switch string(msg.Payload()) {
 			case "ON":
 				if cfg.OnCallback() {
-					c.lightPublishState(stateTopic, true)
+					c.publishState(stateTopic, true)
 				}
 			case "OFF":
 				if cfg.OffCallback() {
-					c.lightPublishState(stateTopic, false)
+					c.publishState(stateTopic, false)
 				}
 			}
 		},
