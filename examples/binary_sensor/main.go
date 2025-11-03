@@ -34,7 +34,7 @@ func main() {
 	s, err := c.BinarySensor(&hamqtt.BinarySensorConfig{
 		ID:          "mydoorsensor",
 		Name:        "My Door",
-		DeviceClass: hamqtt.Door,
+		DeviceClass: hamqtt.BinarySensorDoor,
 	})
 
 	// Read interactive commands from stdin
