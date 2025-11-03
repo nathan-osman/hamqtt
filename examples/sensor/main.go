@@ -31,13 +31,17 @@ func main() {
 	defer c.Close()
 
 	// Create a thermometer
-	s, err := c.Sensor(&hamqtt.SensorConfig{
-		ID:                        "mythermometer",
-		Name:                      "My Thermometer",
-		DeviceClass:               hamqtt.SensorTemperature,
-		UnitOfMeasurement:         hamqtt.SensorDegreesCelsius,
-		SuggestedDisplayPrecision: 1,
-	})
+	s, err := c.Sensor(
+		&hamqtt.EntityConfig{
+			ID:   "mythermometer",
+			Name: "My Thermometer",
+		},
+		&hamqtt.SensorConfig{
+			DeviceClass:               hamqtt.SensorTemperature,
+			UnitOfMeasurement:         hamqtt.SensorDegreesCelsius,
+			SuggestedDisplayPrecision: 1,
+		},
+	)
 	if err != nil {
 		panic(err)
 	}

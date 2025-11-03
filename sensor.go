@@ -236,27 +236,29 @@ const (
 // SensorConfig provides configuration for sensors.
 type SensorConfig struct {
 
-	// ID provides the unique ID of the sensor.
-	ID string
-
-	// Name provides the name of the sensor.
-	Name string
-
 	// DeviceClass categorizes the type of data reported by the sensor.
-	DeviceClass string
+	DeviceClass string `json:"device_class,omitempty"`
 
-	// StateClass
-	StateClass string
+	// StateClass categorizes the nature of the data reported.
+	StateClass string `json:"state_class,omitempty"`
 
 	// Options is a list of allowed values if DeviceClass is SensorEnum.
-	Options []string
+	Options []string `json:"options,omitempty"`
 
 	// UnitOfMeasurement indicates the unit for the sensor's values.
-	UnitOfMeasurement string
+	UnitOfMeasurement string `json:"unit_of_measurement,omitempty"`
 
 	// SuggestedDisplayPrecision indicates the number of decimal places that
 	// should be used to display the sensor's value.
-	SuggestedDisplayPrecision int
+	SuggestedDisplayPrecision int `json:"suggested_display_precision,omitempty"`
+}
+
+type hamqttSensor struct {
+	*EntityConfig
+	*SensorConfig
+	Device     *hamqttDevice `json:"device"`
+	Platform   string        `json:"platform"`
+	StateTopic string        `json:"state_topic"`
 }
 
 // Sensor provides methods for indicating changes to the sensor.
@@ -271,20 +273,19 @@ func (s *Sensor) Set(value string) error {
 }
 
 // Sensor creates a new entity that represents a sensor.
-func (c *Conn) Sensor(cfg *SensorConfig) (*Sensor, error) {
-	stateTopic := c.stateTopic(cfg.ID)
+func (c *Conn) Sensor(
+	entityCfg *EntityConfig,
+	cfg *SensorConfig,
+) (*Sensor, error) {
+	stateTopic := c.stateTopic(entityCfg.ID)
 	if err := c.publishCfg(
-		c.cfgTopic(cfg.ID, "sensor"),
-		map[string]any{
-			"device":                      c.device,
-			"platform":                    "sensor",
-			"unique_id":                   cfg.ID,
-			"name":                        cfg.Name,
-			"device_class":                cfg.DeviceClass,
-			"state_class":                 cfg.StateClass,
-			"unit_of_measurement":         cfg.UnitOfMeasurement,
-			"suggested_display_precision": cfg.SuggestedDisplayPrecision,
-			"state_topic":                 stateTopic,
+		c.cfgTopic(entityCfg.ID, "sensor"),
+		&hamqttSensor{
+			EntityConfig: entityCfg,
+			SensorConfig: cfg,
+			Device:       c.device,
+			Platform:     "sensor",
+			StateTopic:   stateTopic,
 		},
 	); err != nil {
 		return nil, err
