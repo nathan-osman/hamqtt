@@ -32,18 +32,22 @@ defer c.Close()
 From there, you can create entities by calling their respective member function. For example, to create a light:
 
 ```golang
-c.Light(&hamqtt.LightConfig{
-    ID:   "mylight",
-    Name: "My Light",
-    OnCallback: func() bool {
-        fmt.Println("Light turned on")
-        return true
+c.Light(
+    &hamqtt.EntityConfig{
+        ID:   "mylight",
+        Name: "My Light",
     },
-    OffCallback: func() bool {
-        fmt.Println("Light turned off")
-        return true
+    &hamqtt.LightConfig{
+        OnCallback: func() bool {
+            fmt.Println("Light turned on")
+            return true
+        },
+        OffCallback: func() bool {
+            fmt.Println("Light turned off")
+            return true
+        },
     },
-})
+)
 ```
 
 This will create a corresponding entity for your light that you can then control directly from the Home Assistant UI:
