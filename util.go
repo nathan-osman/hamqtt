@@ -36,7 +36,7 @@ func (c *Conn) stateTopic(id string) string {
 	)
 }
 
-func (c *Conn) publishCfg(topic string, payload map[string]any) error {
+func (c *Conn) publishCfg(topic string, payload any) error {
 	b, err := json.Marshal(payload)
 	if err != nil {
 		return err

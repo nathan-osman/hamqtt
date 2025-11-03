@@ -34,17 +34,19 @@ const (
 // BinarySensorConfig provides configuration for binary sensors.
 type BinarySensorConfig struct {
 
-	// ID provides the unique ID of the binary sensor.
-	ID string
-
-	// Name provides the name of the binary sensor.
-	Name string
-
 	// State indicates the initial state of the binary sensor.
-	State bool
+	State bool `json:"-"`
 
 	// DeviceClass categorizes the type of data reported by the sensor.
-	DeviceClass string
+	DeviceClass string `json:"device_class,omitempty"`
+}
+
+type hamqttBinarySensor struct {
+	*EntityConfig
+	*BinarySensorConfig
+	Device     *hamqttDevice `json:"device"`
+	Platform   string        `json:"platform"`
+	StateTopic string        `json:"state_topic"`
 }
 
 // BinarySensor provides methods for indicating changes to the sensor.
@@ -59,20 +61,22 @@ func (b *BinarySensor) Set(state bool) error {
 }
 
 // BinarySensor creates a new entity that represents a binary sensor.
-func (c *Conn) BinarySensor(cfg *BinarySensorConfig) (*BinarySensor, error) {
-	stateTopic := c.stateTopic(cfg.ID)
+func (c *Conn) BinarySensor(
+	entityCfg *EntityConfig,
+	cfg *BinarySensorConfig,
+) (*BinarySensor, error) {
+	stateTopic := c.stateTopic(entityCfg.ID)
 	if err := c.publishStateBool(stateTopic, cfg.State); err != nil {
 		return nil, err
 	}
 	if err := c.publishCfg(
-		c.cfgTopic(cfg.ID, "binary_sensor"),
-		map[string]any{
-			"device":       c.device,
-			"platform":     "binary_sensor",
-			"unique_id":    cfg.ID,
-			"name":         cfg.Name,
-			"device_class": cfg.DeviceClass,
-			"state_topic":  stateTopic,
+		c.cfgTopic(entityCfg.ID, "binary_sensor"),
+		&hamqttBinarySensor{
+			EntityConfig:       entityCfg,
+			BinarySensorConfig: cfg,
+			Device:             c.device,
+			Platform:           "binary_sensor",
+			StateTopic:         stateTopic,
 		},
 	); err != nil {
 		return nil, err

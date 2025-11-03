@@ -31,11 +31,15 @@ func main() {
 	defer c.Close()
 
 	// Create a binary sensor (for a door)
-	s, err := c.BinarySensor(&hamqtt.BinarySensorConfig{
-		ID:          "mydoorsensor",
-		Name:        "My Door",
-		DeviceClass: hamqtt.BinarySensorDoor,
-	})
+	s, err := c.BinarySensor(
+		&hamqtt.EntityConfig{
+			ID:   "mydoorsensor",
+			Name: "My Door",
+		},
+		&hamqtt.BinarySensorConfig{
+			DeviceClass: hamqtt.BinarySensorDoor,
+		},
+	)
 	if err != nil {
 		panic(err)
 	}
