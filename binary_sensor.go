@@ -54,13 +54,13 @@ type BinarySensor struct {
 }
 
 func (b *BinarySensor) Set(state bool) error {
-	return b.conn.publishState(b.stateTopic, state)
+	return b.conn.publishStateBool(b.stateTopic, state)
 }
 
 // BinarySensor creates a new entity that represents a binary sensor.
 func (c *Conn) BinarySensor(cfg *BinarySensorConfig) (*BinarySensor, error) {
 	stateTopic := c.stateTopic(cfg.ID)
-	if err := c.publishState(stateTopic, cfg.State); err != nil {
+	if err := c.publishStateBool(stateTopic, cfg.State); err != nil {
 		return nil, err
 	}
 	if err := c.publishCfg(

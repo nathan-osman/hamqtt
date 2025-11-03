@@ -31,7 +31,7 @@ func (c *Conn) Light(cfg *LightConfig) error {
 		cmdTopic   = c.cmdTopic(cfg.ID)
 		stateTopic = c.stateTopic(cfg.ID)
 	)
-	if err := c.publishState(stateTopic, cfg.State); err != nil {
+	if err := c.publishStateBool(stateTopic, cfg.State); err != nil {
 		return err
 	}
 	if err := c.publishCfg(
@@ -54,11 +54,11 @@ func (c *Conn) Light(cfg *LightConfig) error {
 			switch string(msg.Payload()) {
 			case "ON":
 				if cfg.OnCallback() {
-					c.publishState(stateTopic, true)
+					c.publishStateBool(stateTopic, true)
 				}
 			case "OFF":
 				if cfg.OffCallback() {
-					c.publishState(stateTopic, false)
+					c.publishStateBool(stateTopic, false)
 				}
 			}
 		},

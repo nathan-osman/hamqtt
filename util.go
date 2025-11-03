@@ -47,13 +47,25 @@ func (c *Conn) publishCfg(topic string, payload map[string]any) error {
 	return nil
 }
 
-func (c *Conn) publishState(topic string, state bool) error {
-	payload := "OFF"
-	if state {
-		payload = "ON"
-	}
+func (c *Conn) publishState(topic string, payload string) error {
 	if t := c.client.Publish(topic, 0, true, payload); t.Wait() && t.Error() != nil {
 		return t.Error()
 	}
 	return nil
+}
+
+func (c *Conn) publishStateBool(topic string, state bool) error {
+	payload := "OFF"
+	if state {
+		payload = "ON"
+	}
+	return c.publishState(topic, payload)
+}
+
+func (c *Conn) publishStateJSON(topic string, payload any) error {
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	return c.publishState(topic, string(b))
 }
