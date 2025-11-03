@@ -36,15 +36,19 @@ func main() {
 	defer c.Close()
 
 	// Create an event for a doorbell
-	e, err := c.Event(&hamqtt.EventConfig{
-		ID:          "mydoorbell",
-		Name:        "My Doorbell",
-		DeviceClass: hamqtt.EventDoorbell,
-		EventTypes: []string{
-			Press,
-			Hold,
+	e, err := c.Event(
+		&hamqtt.EntityConfig{
+			ID:   "mydoorbell",
+			Name: "My Doorbell",
 		},
-	})
+		&hamqtt.EventConfig{
+			DeviceClass: hamqtt.EventDoorbell,
+			EventTypes: []string{
+				Press,
+				Hold,
+			},
+		},
+	)
 	if err != nil {
 		panic(err)
 	}

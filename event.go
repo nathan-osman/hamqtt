@@ -9,17 +9,19 @@ const (
 // EventConfig provides configuration for event entities.
 type EventConfig struct {
 
-	// ID provides the unique ID of the binary sensor.
-	ID string
-
-	// Name provides the name of the binary sensor.
-	Name string
-
 	// DeviceClass categorizes the type of event.
-	DeviceClass string
+	DeviceClass string `json:"device_class,omitempty"`
 
 	// EventTypes is a list of valid events (i.e. "press", "hold", etc.).
-	EventTypes []string
+	EventTypes []string `json:"event_types,omitempty"`
+}
+
+type hamqttEvent struct {
+	*EntityConfig
+	*EventConfig
+	Device     *hamqttDevice `json:"device"`
+	Platform   string        `json:"platform"`
+	StateTopic string        `json:"state_topic"`
 }
 
 // Event provides methods for sending events.
@@ -39,18 +41,19 @@ func (e *Event) Send(eventType string) error {
 }
 
 // Event creates a new event entity with the provided configuration.
-func (c *Conn) Event(cfg *EventConfig) (*Event, error) {
-	stateTopic := c.stateTopic(cfg.ID)
+func (c *Conn) Event(
+	entityCfg *EntityConfig,
+	cfg *EventConfig,
+) (*Event, error) {
+	stateTopic := c.stateTopic(entityCfg.ID)
 	if err := c.publishCfg(
-		c.cfgTopic(cfg.ID, "event"),
-		map[string]any{
-			"device":       c.device,
-			"platform":     "event",
-			"unique_id":    cfg.ID,
-			"name":         cfg.Name,
-			"device_class": cfg.DeviceClass,
-			"event_types":  cfg.EventTypes,
-			"state_topic":  stateTopic,
+		c.cfgTopic(entityCfg.ID, "event"),
+		&hamqttEvent{
+			EntityConfig: entityCfg,
+			EventConfig:  cfg,
+			Device:       c.device,
+			Platform:     "event",
+			StateTopic:   stateTopic,
 		},
 	); err != nil {
 		return nil, err
