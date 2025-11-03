@@ -13,31 +13,35 @@ const (
 // ButtonConfig provides configuration for button entities.
 type ButtonConfig struct {
 
-	// ID provides the unique ID of the button.
-	ID string
-
-	// Name provides the name of the button.
-	Name string
-
 	// DeviceClass categorizes the button.
-	DeviceClass string
+	DeviceClass string `json:"device_class,omitempty"`
 
 	// PressCallback is invoked when the button is pressed.
-	PressCallback EmptyCallback
+	PressCallback EmptyCallback `json:"-"`
+}
+
+type hamqttButton struct {
+	*EntityConfig
+	*ButtonConfig
+	Device       *hamqttDevice `json:"device"`
+	Platform     string        `json:"platform"`
+	CommandTopic string        `json:"command_topic"`
 }
 
 // Button creates a new button entity with the provided configuration.
-func (c *Conn) Button(cfg *ButtonConfig) error {
-	cmdTopic := c.cmdTopic(cfg.ID)
+func (c *Conn) Button(
+	entityCfg *EntityConfig,
+	cfg *ButtonConfig,
+) error {
+	cmdTopic := c.cmdTopic(entityCfg.ID)
 	if err := c.publishCfg(
-		c.cfgTopic(cfg.ID, "button"),
-		map[string]any{
-			"device":        c.device,
-			"platform":      "button",
-			"unique_id":     cfg.ID,
-			"name":          cfg.Name,
-			"device_class":  cfg.DeviceClass,
-			"command_topic": cmdTopic,
+		c.cfgTopic(entityCfg.ID, "button"),
+		&hamqttButton{
+			EntityConfig: entityCfg,
+			ButtonConfig: cfg,
+			Device:       c.device,
+			Platform:     "button",
+			CommandTopic: cmdTopic,
 		},
 	); err != nil {
 		return err

@@ -32,14 +32,18 @@ func main() {
 	defer c.Close()
 
 	// Create a button entity
-	if err := c.Button(&hamqtt.ButtonConfig{
-		ID:          "mybutton",
-		Name:        "My Restart Button",
-		DeviceClass: hamqtt.ButtonRestart,
-		PressCallback: func() {
-			fmt.Println("Restart button was pressed!")
+	if err := c.Button(
+		&hamqtt.EntityConfig{
+			ID:   "mybutton",
+			Name: "My Restart Button",
 		},
-	}); err != nil {
+		&hamqtt.ButtonConfig{
+			DeviceClass: hamqtt.ButtonRestart,
+			PressCallback: func() {
+				fmt.Println("Restart button was pressed!")
+			},
+		},
+	); err != nil {
 		panic(err)
 	}
 
