@@ -7,42 +7,48 @@ import (
 // LightConfig provides configuration for light entities.
 type LightConfig struct {
 
-	// ID provides the unique ID of the light.
-	ID string
-
-	// Name provides the name of the light.
-	Name string
-
 	// State indicates the initial state of the light.
-	State bool
+	State bool `json:"-"`
 
 	// OnCallback is invoked when the light is turned on. Returning true will
 	// cause a change to the light's state.
-	OnCallback BoolCallback
+	OnCallback BoolCallback `json:"-"`
 
 	// OffCallback is invoked when the light is turned off. Returning true
 	// will cause a change to the light's state.
-	OffCallback BoolCallback
+	OffCallback BoolCallback `json:"-"`
+}
+
+type hamqttLight struct {
+	*EntityConfig
+	*LightConfig
+	Device       *hamqttDevice `json:"device"`
+	Platform     string        `json:"platform"`
+	CommandTopic string        `json:"command_topic"`
+	StateTopic   string        `json:"state_topic"`
 }
 
 // Light creates a new light entity with the provided configuration.
-func (c *Conn) Light(cfg *LightConfig) error {
+func (c *Conn) Light(
+	entityCfg *EntityConfig,
+	cfg *LightConfig,
+) error {
 	var (
-		cmdTopic   = c.cmdTopic(cfg.ID)
-		stateTopic = c.stateTopic(cfg.ID)
+		cmdTopic   = c.cmdTopic(entityCfg.ID)
+		stateTopic = c.stateTopic(entityCfg.ID)
 	)
 	if err := c.publishStateBool(stateTopic, cfg.State); err != nil {
 		return err
 	}
 	if err := c.publishCfg(
-		c.cfgTopic(cfg.ID, "light"),
-		map[string]any{
-			"device":        c.device,
-			"platform":      "light",
-			"unique_id":     cfg.ID,
-			"name":          cfg.Name,
-			"command_topic": cmdTopic,
-			"state_topic":   stateTopic,
+		c.cfgTopic(entityCfg.ID, "light"),
+		&hamqttLight{
+			EntityConfig: entityCfg,
+			LightConfig:  cfg,
+			Device:       c.device,
+			Platform:     "light",
+			CommandTopic: cmdTopic,
+			StateTopic:   stateTopic,
 		},
 	); err != nil {
 		return err
