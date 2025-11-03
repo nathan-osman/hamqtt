@@ -4,9 +4,6 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-// BoolCallback is a callback that returns a bool indicating success.
-type BoolCallback func() bool
-
 // LightConfig provides configuration for light entities.
 type LightConfig struct {
 
@@ -23,7 +20,8 @@ type LightConfig struct {
 	// cause a change to the light's state.
 	OnCallback BoolCallback
 
-	// OffCallback is invoked when
+	// OffCallback is invoked when the light is turned off. Returning true
+	// will cause a change to the light's state.
 	OffCallback BoolCallback
 }
 
