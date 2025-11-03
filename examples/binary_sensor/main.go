@@ -36,6 +36,9 @@ func main() {
 		Name:        "My Door",
 		DeviceClass: hamqtt.BinarySensorDoor,
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	// Read interactive commands from stdin
 	scanner := bufio.NewScanner(os.Stdin)

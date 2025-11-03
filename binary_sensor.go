@@ -53,6 +53,7 @@ type BinarySensor struct {
 	stateTopic string
 }
 
+// Set updates the binary sensor's value.
 func (b *BinarySensor) Set(state bool) error {
 	return b.conn.publishStateBool(b.stateTopic, state)
 }
