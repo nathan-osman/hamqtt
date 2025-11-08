@@ -5,12 +5,6 @@ import (
 	"fmt"
 )
 
-// EmptyCallback is a callback that has no return value.
-type EmptyCallback func()
-
-// BoolCallback is a callback that returns a bool indicating success.
-type BoolCallback func() bool
-
 func (c *Conn) cfgTopic(id, entityType string) string {
 	return fmt.Sprintf(
 		"%s/%s/%s/config",

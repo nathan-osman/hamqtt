@@ -12,11 +12,11 @@ type LightConfig struct {
 
 	// OnCallback is invoked when the light is turned on. Returning true will
 	// cause a change to the light's state.
-	OnCallback BoolCallback `json:"-"`
+	OnCallback func() bool `json:"-"`
 
 	// OffCallback is invoked when the light is turned off. Returning true
 	// will cause a change to the light's state.
-	OffCallback BoolCallback `json:"-"`
+	OffCallback func() bool `json:"-"`
 }
 
 type hamqttLight struct {

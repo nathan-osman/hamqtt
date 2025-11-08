@@ -17,7 +17,7 @@ type ButtonConfig struct {
 	DeviceClass string `json:"device_class,omitempty"`
 
 	// PressCallback is invoked when the button is pressed.
-	PressCallback EmptyCallback `json:"-"`
+	PressCallback func() `json:"-"`
 }
 
 type hamqttButton struct {
