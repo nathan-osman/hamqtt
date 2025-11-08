@@ -34,7 +34,7 @@ func (c *Conn) Light(
 	cfg *LightConfig,
 ) error {
 	var (
-		cmdTopic   = c.cmdTopic(entityCfg.ID)
+		cmdTopic   = c.cmdTopic(entityCfg.ID, "light")
 		stateTopic = c.stateTopic(entityCfg.ID)
 	)
 	if err := c.publishStateBool(stateTopic, cfg.State); err != nil {

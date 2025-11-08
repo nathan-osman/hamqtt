@@ -33,7 +33,7 @@ func (c *Conn) Button(
 	entityCfg *EntityConfig,
 	cfg *ButtonConfig,
 ) error {
-	cmdTopic := c.cmdTopic(entityCfg.ID)
+	cmdTopic := c.cmdTopic(entityCfg.ID, "button")
 	if err := c.publishCfg(
 		c.cfgTopic(entityCfg.ID, "button"),
 		&hamqttButton{

@@ -14,11 +14,12 @@ func (c *Conn) cfgTopic(id, entityType string) string {
 	)
 }
 
-func (c *Conn) cmdTopic(id string) string {
+func (c *Conn) cmdTopic(id, entityType string) string {
 	return fmt.Sprintf(
-		"%s/%s/switch",
+		"%s/%s/%s",
 		c.id,
 		id,
+		entityType,
 	)
 }
 
